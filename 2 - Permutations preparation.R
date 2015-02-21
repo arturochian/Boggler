@@ -2,22 +2,23 @@ library(igraph)
 library(RSQLite)
 
 # A graph will represent legit connections between letters
-temp.graph <- graph.lattice(length = c(4,4), dim = 1, directed = FALSE, nei = 1)
+temp.graph <- graph.lattice(length = c(4,4), dim = 1, directed = FALSE)
 plot(temp.graph)
 
 # We need to add diagonal connections; we'll get the adjacency matrix and add them to it
 adjacency.matrix <- get.adjacency(graph=temp.graph, type = "both", attr = NULL, edges = FALSE, sparse = TRUE)
 
 # define pairs of links to add
-pairs <- list(c(1,6), c(2,5), c(2,7), c(3,6), c(3,8), c(4,7), c(5,10),
-              c(6,9), c(7,10), c(6,11), c(8,11), c(7,12), c(9,14), c(10,13),
-              c(10,15), c(11,14), c(11,16), c(12,15))
+indices <- rbind(c(1,6), c(2,5), c(2,7), c(3,6), c(3,8), c(4,7), c(5,10),
+                 c(6,9), c(7,10), c(6,11), c(8,11), c(7,12), c(9,14), c(10,13),
+                 c(10,15), c(11,14), c(11,16), c(12,15))
 
-for(i in seq_along(pairs)) {
-  adjacency.matrix[pairs[[i]][1], pairs[[i]][2]] <- 1
+
+for(i in 1:nrow(indices)) {
+  adjacency.matrix[indices[i,1],indices[i,2]] <- 1
 }
 
-boggle.graph <- graph.adjacency(adjmatrix = adjacency.matrix, diag = TRUE,mode = "undirected")
+boggle.graph <- graph.adjacency(adjmatrix = adjacency.matrix, diag = TRUE, mode = "undirected")
 
 # Make sure we have the correct graph
 plot(boggle.graph)
@@ -62,4 +63,3 @@ con <- RSQLite::dbConnect(SQLite(),"Boggler.sqlite")
 lapply(3:16, function(i) dbWriteTable(con, name = paste("paths", i, sep="_"), value = as.data.frame(boggle.paths[[i]])))
 
 dbDisconnect(con)
-
