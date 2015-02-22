@@ -1,6 +1,8 @@
 library(igraph)
 library(RSQLite)
 
+con <- dbConnect(SQLite(), "Boggler.sqlite")
+
 # A graph will represent legit connections between letters
 temp.graph <- graph.lattice(length = c(4,4), dim = 1, directed = FALSE)
 plot(temp.graph)
@@ -59,7 +61,6 @@ plot(sizes,type="b")
 
 # write the paths to the database
 # Note: this will take about 400Mb of disk space
-con <- RSQLite::dbConnect(SQLite(),"Boggler.sqlite")
 lapply(3:16, function(i) dbWriteTable(con, name = paste("paths", i, sep="_"), value = as.data.frame(boggle.paths[[i]])))
 
 dbDisconnect(con)
